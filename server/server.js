@@ -1,13 +1,19 @@
+const fs = require('fs');
 const express = require('express');
 const app = express();
 const path = require('path');
 // const db = require('../db');
-var engines = require('consolidate');
+const engines = require('consolidate');
 const routes = require('./routes');
 
-var server = require('http').createServer(app);
+const server = require('http').createServer(app);
 
-app.engine('html', engines.swig);
+app.engine('html', function (filePath, options, callback) {
+  fs.readFile(filePath, function (err, content) {
+    if (err) return callback(new Error(err));
+    return callback(null, content.toString());
+  });
+});
 app.set('view engine', 'html');
 app.set('views', path.join(__dirname, 'views'));
 app.use('/static', express.static(path.join(__dirname, '../bundle')));
